@@ -1,0 +1,104 @@
+<html>
+	<head>
+		<title>Grades Page</title>
+	</head>
+	<body onload="doAll()">
+		<table border="1" id="tbl">
+			<tr>
+				<td>Grades</td>
+				<td>Dates</td>
+				<td></td>
+			</tr>
+		</table>
+		<br /><br />
+		<h3>New Exam</h3>
+		Grade: <input type="text" id="grade" /><br /><br />
+		Date: <input type="date" id="date" /><br /><br /><br />
+		<input type="button" value="Add New Exam" onclick="addNewExamClicked()" />
+		<br /><br /><input
+			type="button"
+			value="Return To Main"
+			onclick="returnToMain()"
+		/>
+		<br /><br />
+		<input type="button" value="Logout" onclick="logout()" />
+
+		<script>
+			let id = sessionStorage.getItem("id");
+			async function doAll() {
+				let tableEl = document.getElementById("tbl");
+				let resp = await fetch(`http://localhost:8000/api/students/${id}`);
+				if (resp.ok) {
+					let student = await resp.json();
+					let grades = student.grades;
+					for (let i = 0; i < grades.length; i++) {
+						// ----------------- שורה --------------------
+						let tableRowEl = document.createElement("tr");
+						tableEl.appendChild(tableRowEl);
+
+						// ----------- grades עמודה של --------------
+						let gradesEl = document.createElement("td");
+						gradesEl.innerText = grades[i].grade;
+						tableRowEl.appendChild(gradesEl);
+
+						// ----------- dates עמודה של --------------
+						let dateEl = document.createElement("td");
+						let dateDate = new Date(grades[i].date);
+						dateEl.innerText = dateDate.toLocaleDateString();
+						tableRowEl.appendChild(dateEl);
+
+						// ----------- edit עמודה של --------------
+						let editEL = document.createElement("td");
+						let editBtn = document.createElement("button");
+						editBtn.innerText = "Edit";
+						editBtn.addEventListener("click", () => {
+							sessionStorage.setItem("studentId", id);
+							sessionStorage.setItem("gradeId", grades[i]._id);
+							sessionStorage.setItem("grade", grades[i].grade);
+							sessionStorage.setItem("date", dateDate.toLocaleDateString());
+							location.href = "editGradePage.html";
+						});
+						editEL.appendChild(editBtn);
+						tableRowEl.appendChild(editEL);
+					}
+				} else {
+					console.log("fetch eror");
+				}
+			}
+
+			async function addNewExamClicked() {
+				let newGradeEl = document.getElementById("grade").value;
+				let newDateEl = document.getElementById("date").value;
+				let newObj = {
+					date: newDateEl,
+					grade: parseInt(newGradeEl),
+				};
+				let resp = await fetch(`http://localhost:8000/api/students/${id}`);
+				if (resp.ok) {
+					let student = await resp.json();
+					student.grades.push(newObj);
+					console.log(student);
+					let resp2 = await fetch(`http://localhost:8000/api/students/${id}`, {
+						method: "put",
+						body: JSON.stringify(student),
+						headers: { "Content-type": "application/json" },
+					});
+					if (resp2.ok) {
+						let updateStudent = await resp2.json();
+					} else {
+						console.log("fetch eror");
+					}
+				} else {
+					console.log("fetch eror");
+				}
+				location.href = "gradesPage.html";
+			}
+			function returnToMain() {
+				location.href = "studentsPage.html";
+			}
+			function logout() {
+				location.href = "loginPage.html";
+			}
+		</script>
+	</body>
+</html>

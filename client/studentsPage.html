@@ -1,0 +1,103 @@
+<html>
+	<head>
+		<title>Students Page</title>
+	</head>
+	<body onload="doAll()">
+		<h1>Welcome To Shalev's Project ☺</h1>
+		<table border="1" id="tbl">
+			<tr>
+				<td>Full Name</td>
+				<td>Faculty</td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+		<br /><br />
+		<input type="button" value="Add New Student" onclick="addNewStudent()" />
+		<br /><br />
+		<input type="button" value="Logout" onclick="logout()" />
+		<script>
+			async function doAll() {
+				let tableEl = document.getElementById("tbl");
+				let resp = await fetch("http://localhost:8000/api/students");
+				if (resp.ok) {
+					let students = await resp.json();
+					for (let i = 0; i < students.length; i++) {
+						// ----------------- שורה --------------------
+						let tableRowEl = document.createElement("tr");
+						tableEl.appendChild(tableRowEl);
+
+						// ----------- full name עמודה של --------------
+
+						let fullNameEl = document.createElement("td");
+						let nameLink = document.createElement("a");
+						nameLink.innerText = students[i].fullName;
+						nameLink.href = "studentPage.html";
+						//data שמירה של
+						nameLink.addEventListener("click", () => {
+							sessionStorage.setItem("id", students[i]._id);
+						});
+
+						fullNameEl.appendChild(nameLink);
+						tableRowEl.appendChild(fullNameEl);
+						// ----------- faculty עמודה של --------------
+						let facultyEl = document.createElement("td");
+						facultyEl.innerText = students[i].faculty;
+						tableRowEl.appendChild(facultyEl);
+
+						// ----------- grades עמודה של --------------
+						let gradesEl = document.createElement("td");
+						let gradesLink = document.createElement("a");
+						gradesLink.innerText = "Grades";
+						gradesLink.href = "gradesPage.html";
+						gradesLink.addEventListener("click", () => {
+							sessionStorage.setItem("id", students[i]._id);
+						});
+						gradesEl.appendChild(gradesLink);
+						tableRowEl.appendChild(gradesEl);
+
+						// ----------- edit עמודה של --------------
+						let editEl = document.createElement("td");
+						let editLink = document.createElement("a");
+						editLink.innerText = "Edit";
+						editLink.href = "editStudentPage.html";
+						editLink.addEventListener("click", () => {
+							sessionStorage.setItem("id", students[i]._id);
+						});
+						editEl.appendChild(editLink);
+						tableRowEl.appendChild(editEl);
+
+						// ----------- delete עמודה של --------------
+						let deleteEl = document.createElement("td");
+						let deleteLink = document.createElement("a");
+						deleteLink.innerText = "Delete";
+						deleteLink.href = "studentsPage.html";
+						deleteLink.addEventListener("click", async () => {
+							let resp2 = await fetch(
+								`http://localhost:8000/api/students/${students[i]._id}`,
+								{ method: "delete" }
+							);
+							if (resp.ok) {
+								console.log("deleted");
+							} else {
+								("fetch eror");
+							}
+						});
+
+						deleteEl.appendChild(deleteLink);
+						tableRowEl.appendChild(deleteEl);
+					}
+				} else {
+					console.log("fetch eror");
+				}
+			}
+			function addNewStudent() {
+				location.href = "newStudentPage.html";
+			}
+			function logout() {
+				location.href = "loginPage.html";
+			}
+		</script>
+	</body>
+</html>

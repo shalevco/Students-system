@@ -1,0 +1,72 @@
+<html>
+	<head>
+		<title>Edit Grade Page</title>
+	</head>
+	<body>
+		<div id="oldGrade">Grade:</div>
+
+		Update Grade: <input type="text" id="updateGrade" /><br /><br />
+
+		<div id="oldDate">Date:</div>
+
+		Update Date: <input type="date" id="updateDate" /><br /><br /><br />
+
+		<input type="button" value="Update" onclick="updateTest()" />
+		<br /><br />
+		<input type="button" value="Return to Main" onclick="returnToMain()" />
+		<br /><br />
+		<input type="button" value="Logout" onclick="logout()" />
+
+		<script>
+			let grade = sessionStorage.getItem("grade");
+			let date = sessionStorage.getItem("date");
+			let gradeId = sessionStorage.getItem("gradeId");
+			let studentId = sessionStorage.getItem("studentId");
+
+			let oldGradeEl = document.getElementById("oldGrade");
+			let oldDateEl = document.getElementById("oldDate");
+
+			oldGradeEl.innerText = `Grade: ${grade}`;
+			oldDateEl.innerText = `Date: ${date}`;
+
+			async function updateTest() {
+				let updateGradeEl = document.getElementById("updateGrade").value;
+				let updateDateEl = document.getElementById("updateDate").value;
+				let resp = await fetch(
+					`http://localhost:8000/api/students/${studentId}`
+				);
+				if (resp.ok) {
+					let student = await resp.json();
+					for (let i = 0; i < student.grades.length; i++) {
+						if (gradeId == student.grades[i]._id) {
+							student.grades[i].grade = updateGradeEl;
+							student.grades[i].date = updateDateEl;
+						}
+					}
+					let resp2 = await fetch(
+						`http://localhost:8000/api/students/${studentId}`,
+						{
+							method: "put",
+							body: JSON.stringify(student),
+							headers: { "Content-type": "application/json" },
+						}
+					);
+					if (resp2.ok) {
+						let updateStudent = await resp2.json();
+					} else {
+						console.log("fetch eror");
+					}
+				} else {
+					console.log("fetch eror");
+				}
+				location.href = "gradesPage.html";
+			}
+			function returnToMain() {
+				location.href = "studentsPage.html";
+			}
+			function logout() {
+				location.href = "loginPage.html";
+			}
+		</script>
+	</body>
+</html>

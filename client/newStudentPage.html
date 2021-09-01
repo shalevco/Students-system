@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<title>New Student Page</title>
+	</head>
+	<body>
+		Full Name: <input type="text" id="fullName" /><br /><br />
+		Email: <input type="text" id="email" /><br /><br />
+		Faculty: <input type="text" id="faculty" /><br /><br />
+		Birth Date: <input type="date" id="birthDate" /><br /><br /><br />
+		<input type="button" value="Add" onclick="addStudent()" />
+		<br /><br />
+		<input type="button" value="Return to Main" onclick="returnToMain()" />
+		<br /><br />
+		<input type="button" value="Logout" onclick="logout()" />
+		<script>
+			async function addStudent() {
+				let newFullNameEl = document.getElementById("fullName");
+				let newEmailEl = document.getElementById("email");
+				let newFacultyEl = document.getElementById("faculty");
+				let newbirthDateEl = document.getElementById("birthDate");
+				let d = new Date(newbirthDateEl.value);
+
+				let newStudent = {
+					fullName: newFullNameEl.value,
+					email: newEmailEl.value,
+					faculty: newFacultyEl.value,
+					birthDate: d,
+				};
+				let resp = await fetch(`http://localhost:8000/api/students`, {
+					method: "post",
+					body: JSON.stringify(newStudent),
+					headers: { "Content-type": "application/json" },
+				});
+				if (resp.ok) {
+					let students = await resp.json();
+				} else {
+					console.log("fetch eror");
+				}
+				location.href = "studentsPage.html";
+			}
+			function returnToMain() {
+				location.href = "studentsPage.html";
+			}
+			function logout() {
+				location.href = "loginPage.html";
+			}
+		</script>
+	</body>
+</html>

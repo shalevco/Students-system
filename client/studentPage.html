@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<title>Student Page</title>
+	</head>
+	<body onload="doAll()">
+		<div id="id">Id:</div>
+		<br />
+		<div id="fullName">Full Name:</div>
+		<br />
+		<div id="email">Email:</div>
+		<br />
+		<div id="faculty">Faculty:</div>
+		<br />
+		<div id="birthDate">Birth Date:</div>
+		<br />
+		<div>
+			Grades:<br /><br />
+			<table border="1" id="tbl">
+				<tr>
+					<td>Grade</td>
+					<td>Date</td>
+				</tr>
+			</table>
+		</div>
+		<br /><br />
+		<input type="button" value="Return to Main" onclick="returnToMain()" />
+		<br /><br />
+		<input type="button" value="Logout" onclick="logout()" />
+
+		<script>
+			async function doAll() {
+				let idEl = document.getElementById("id");
+				let fullNameEl = document.getElementById("fullName");
+				let emailEl = document.getElementById("email");
+				let facultyEl = document.getElementById("faculty");
+				let birthDateEl = document.getElementById("birthDate");
+				let tableEl = document.getElementById("tbl");
+
+				//studentsPage.html מ id קבלת
+				let id = sessionStorage.getItem("id");
+
+				let resp = await fetch(`http://localhost:8000/api/students/${id}`);
+				if (resp.ok) {
+					let student = await resp.json();
+					idEl.innerText = `Id: ${id}`;
+					fullNameEl.innerText = `Full Name: ${student.fullName}`;
+					emailEl.innerText = `Email: ${student.email}`;
+					facultyEl.innerText = `Faculty: ${student.faculty}`;
+					let birthDateDate = new Date(student.birthDate);
+					birthDateEl.innerText = `Birth Date: ${birthDateDate.toLocaleDateString()}`;
+
+					for (let i = 0; i < student.grades.length; i++) {
+						// ----------------- שורה --------------------
+						let tableRowEl = document.createElement("tr");
+						tableEl.appendChild(tableRowEl);
+
+						// ----------- grades עמודה של --------------
+						let gradesEl = document.createElement("td");
+						gradesEl.innerText = student.grades[i].grade;
+						tableRowEl.appendChild(gradesEl);
+
+						// ----------- dates עמודה של --------------
+						let datesEl = document.createElement("td");
+						let testDate = new Date(student.grades[i].date);
+						datesEl.innerText = testDate.toLocaleDateString();
+						tableRowEl.appendChild(datesEl);
+					}
+				} else {
+					console.log("fetch eror");
+				}
+			}
+			function returnToMain() {
+				location.href = "studentsPage.html";
+			}
+			function logout() {
+				location.href = "loginPage.html";
+			}
+		</script>
+	</body>
+</html>
